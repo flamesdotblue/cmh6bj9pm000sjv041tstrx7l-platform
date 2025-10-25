@@ -1,28 +1,57 @@
-import { useState } from 'react'
+import React from 'react';
+import Navbar from './components/Navbar';
+import Hero3D from './components/Hero3D';
+import CallPanel from './components/CallPanel';
+import VideoChat from './components/VideoChat';
+import ChatPanel from './components/ChatPanel';
 
-function App() {
-  const [count, setCount] = useState(0)
-
+export default function App() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 flex items-center justify-center">
-      <div className="bg-white p-8 rounded-lg shadow-lg">
-        <h1 className="text-3xl font-bold text-gray-800 mb-4">
-          Vibe Coding Platform
-        </h1>
-        <p className="text-gray-600 mb-6">
-          Your AI-powered development environment
-        </p>
-        <div className="text-center">
-          <button
-            onClick={() => setCount(count + 1)}
-            className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded"
-          >
-            Count is {count}
-          </button>
-        </div>
-      </div>
-    </div>
-  )
-}
+    <div className="min-h-screen bg-[#0b0b12] text-white antialiased"> 
+      <Navbar />
+      <main>
+        <section id="home" className="relative">
+          <Hero3D />
+        </section>
 
-export default App
+        <section id="voice" className="relative container mx-auto px-4 py-16 sm:py-24">
+          <div className="mb-10 flex items-end justify-between">
+            <div>
+              <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight">Ultra-clear voice calls</h2>
+              <p className="text-sm sm:text-base text-white/60 mt-2">Crystal voice pipeline with spatial UI controls.</p>
+            </div>
+          </div>
+          <CallPanel />
+        </section>
+
+        <section id="video" className="relative bg-gradient-to-b from-white/0 via-white/[0.02] to-white/[0.04]">
+          <div className="container mx-auto px-4 py-16 sm:py-24">
+            <div className="mb-10 flex items-end justify-between">
+              <div>
+                <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight">Holographic video rooms</h2>
+                <p className="text-sm sm:text-base text-white/60 mt-2">Latency-aware video with cinematic controls.</p>
+              </div>
+            </div>
+            <VideoChat />
+          </div>
+        </section>
+
+        <section id="chat" className="relative container mx-auto px-4 py-16 sm:py-24">
+          <div className="mb-10 flex items-end justify-between">
+            <div>
+              <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight">Realtime chat</h2>
+              <p className="text-sm sm:text-base text-white/60 mt-2">Type, send, react — all in a neon flow.</p>
+            </div>
+          </div>
+          <ChatPanel />
+        </section>
+      </main>
+
+      <footer className="border-t border-white/10 py-8">
+        <div className="container mx-auto px-4 text-center text-white/50 text-sm">
+          © {new Date().getFullYear()} Nebula Comms — A futuristic communication experience
+        </div>
+      </footer>
+    </div>
+  );
+}
