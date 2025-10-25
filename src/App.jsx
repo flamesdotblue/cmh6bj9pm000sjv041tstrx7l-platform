@@ -1,57 +1,124 @@
-import React from 'react';
-import Navbar from './components/Navbar';
-import Hero3D from './components/Hero3D';
-import CallPanel from './components/CallPanel';
-import VideoChat from './components/VideoChat';
-import ChatPanel from './components/ChatPanel';
+import React, { useMemo, useState } from 'react';
+import TopBar from './components/TopBar';
+import ChatsList from './components/ChatsList';
+import ChatWindow from './components/ChatWindow';
+import FloatingActions from './components/FloatingActions';
 
 export default function App() {
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+
+  const [chats] = useState([
+    {
+      id: 'astro',
+      name: 'Astronaut',
+      avatar: '🧑‍🚀',
+      lastMessage: 'See you in orbit!',
+      unread: 2,
+    },
+    {
+      id: 'synth',
+      name: 'Synth',
+      avatar: '🤖',
+      lastMessage: 'Calibrating vibes...',
+      unread: 0,
+    },
+    {
+      id: 'nova',
+      name: 'Nova',
+      avatar: '🌌',
+      lastMessage: 'Sending the star map now.',
+      unread: 1,
+    },
+  ]);
+
+  const initialMessages = useMemo(
+    () => ({
+      astro: [
+        { id: 1, from: 'them', text: 'Touchdown complete.' },
+        { id: 2, from: 'me', text: 'Copy that. Systems green?' },
+        { id: 3, from: 'them', text: 'All nominal. See you in orbit!' },
+      ],
+      synth: [
+        { id: 1, from: 'them', text: 'Calibrating vibes...' },
+      ],
+      nova: [
+        { id: 1, from: 'them', text: 'Hey! The new star map looks insane.' },
+      ],
+    }),
+    []
+  );
+
+  const [messagesByChat, setMessagesByChat] = useState(initialMessages);
+  const [activeChatId, setActiveChatId] = useState(chats[0]?.id || '');
+
+  const activeChat = chats.find((c) => c.id === activeChatId) || chats[0];
+  const messages = messagesByChat[activeChat?.id] || [];
+
+  const sendMessage = (text) => {
+    if (!text.trim()) return;
+    const newMsg = { id: Date.now(), from: 'me', text: text.trim() };
+    setMessagesByChat((prev) => ({
+      ...prev,
+      [activeChat.id]: [...(prev[activeChat.id] || []), newMsg],
+    }));
+
+    setTimeout(() => {
+      setMessagesByChat((prev) => ({
+        ...prev,
+        [activeChat.id]: [
+          ...(prev[activeChat.id] || []),
+          { id: Date.now() + 1, from: 'them', text: 'Echo: ' + text.trim() },
+        ],
+      }));
+    }, 500);
+  };
+
   return (
-    <div className="min-h-screen bg-[#0b0b12] text-white antialiased"> 
-      <Navbar />
-      <main>
-        <section id="home" className="relative">
-          <Hero3D />
-        </section>
+    <div className="min-h-screen bg-[#0b0b12] text-white antialiased">
+      <div className="fixed inset-0 -z-10 bg-[radial-gradient(1200px_600px_at_20%_-10%,rgba(255,0,184,0.14),transparent),radial-gradient(1200px_600px_at_120%_110%,rgba(70,21,255,0.16),transparent)]" />
 
-        <section id="voice" className="relative container mx-auto px-4 py-16 sm:py-24">
-          <div className="mb-10 flex items-end justify-between">
-            <div>
-              <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight">Ultra-clear voice calls</h2>
-              <p className="text-sm sm:text-base text-white/60 mt-2">Crystal voice pipeline with spatial UI controls.</p>
-            </div>
+      <TopBar onMenu={() => setMobileSidebarOpen(true)} />
+
+      <div className="container mx-auto px-4 pb-4">
+        <div className="mt-4 grid md:grid-cols-[320px_1fr] gap-4">
+          <div className="hidden md:block">
+            <ChatsList
+              chats={chats}
+              activeChatId={activeChatId}
+              onSelect={(id) => setActiveChatId(id)}
+            />
           </div>
-          <CallPanel />
-        </section>
 
-        <section id="video" className="relative bg-gradient-to-b from-white/0 via-white/[0.02] to-white/[0.04]">
-          <div className="container mx-auto px-4 py-16 sm:py-24">
-            <div className="mb-10 flex items-end justify-between">
-              <div>
-                <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight">Holographic video rooms</h2>
-                <p className="text-sm sm:text-base text-white/60 mt-2">Latency-aware video with cinematic controls.</p>
-              </div>
-            </div>
-            <VideoChat />
-          </div>
-        </section>
+          <div className="md:hidden" />
 
-        <section id="chat" className="relative container mx-auto px-4 py-16 sm:py-24">
-          <div className="mb-10 flex items-end justify-between">
-            <div>
-              <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight">Realtime chat</h2>
-              <p className="text-sm sm:text-base text-white/60 mt-2">Type, send, react — all in a neon flow.</p>
-            </div>
-          </div>
-          <ChatPanel />
-        </section>
-      </main>
-
-      <footer className="border-t border-white/10 py-8">
-        <div className="container mx-auto px-4 text-center text-white/50 text-sm">
-          © {new Date().getFullYear()} Nebula Comms — A futuristic communication experience
+          <ChatWindow
+            chat={activeChat}
+            messages={messages}
+            onSend={sendMessage}
+          />
         </div>
-      </footer>
+      </div>
+
+      <FloatingActions />
+
+      {mobileSidebarOpen && (
+        <div className="fixed inset-0 z-40 md:hidden">
+          <div
+            onClick={() => setMobileSidebarOpen(false)}
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+          />
+          <div className="absolute left-0 top-0 h-full w-[86%] max-w-sm bg-[#111117] border-r border-white/10 p-3">
+            <ChatsList
+              chats={chats}
+              activeChatId={activeChatId}
+              onSelect={(id) => {
+                setActiveChatId(id);
+                setMobileSidebarOpen(false);
+              }}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
